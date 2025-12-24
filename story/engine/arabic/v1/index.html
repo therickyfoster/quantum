@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>محرّك الحكاية الكمومي | Quantum Story Engine</title>
+  
+  <style>
+    :root {
+      --phi: 1.618033988749895;
+      --space-1: 4px;
+      --space-2: 6px;
+      --space-3: 10px;
+      --space-4: 17px;
+      --space-5: 27px;
+      --space-6: 44px;
+      
+      --λ-violet: #8b5cf6;
+      --λ-indigo: #6366f1;
+      --λ-blue: #3b82f6;
+      --λ-cyan: #22d3ee;
+      --λ-green: #10b981;
+      --λ-yellow: #fbbf24;
+      --λ-orange: #f97316;
+      --λ-red: #ef4444;
+      
+      --ψ-ground: #0a0e1a;
+      --ψ-excited-1: rgba(139, 92, 246, 0.15);
+      --ψ-excited-2: rgba(34, 211, 238, 0.12);
+      --ψ-excited-3: rgba(16, 185, 129, 0.10);
+      
+      --field-strong: rgba(255, 255, 255, 0.95);
+      --field-medium: rgba(255, 255, 255, 0.72);
+      --field-weak: rgba(255, 255, 255, 0.48);
+      
+      --glass-bg: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      
+      --type-xs: 11px;
+      --type-sm: 13px;
+      --type-base: 15px;
+      --type-lg: 24px;
+      --type-xl: 39px;
+      --type-2xl: 63px;
+      
+      --t-atomic: 150ms;
+      --t-molecular: 350ms;
+      --t-organic: 700ms;
+      --t-cosmic: 2000ms;
+      
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-quantum: cubic-bezier(0.4, 0, 0.2, 1);
+      
+      --z-field: 1;
+      --z-particle: 10;
+      --z-interface: 100;
+      --z-transcendent: 9999;
+      
+      --font-display: 'Amiri', Georgia, serif;
+      --font-body: system-ui, -apple-system, sans-serif;
+      --font-mono: ui-monospace, monospace;
+      
+      --max-width: 1400px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    
+    body {
+      min-height: 100vh;
+      font-family: var(--font-body);
+      font-size: var(--type-base);
+      line-height: 1.618;
+      color: var(--field-strong);
+      background: var(--ψ-ground);
+      overflow-x: hidden;
+    }
+
+    #quantum-field {
+      position: fixed;
+      inset: 0;
+      z-index: var(--z-field);
+      pointer-events: none;
+      background: 
+        radial-gradient(ellipse 1800px 900px at 20% 15%, var(--ψ-excited-1), transparent 70%),
+        radial-gradient(ellipse 1200px 800px at 75% 40%, var(--ψ-excited-2), transparent 65%),
+        radial-gradient(ellipse 1000px 600px at 50% 85%, var(--ψ-excited-3), transparent 60%),
+        linear-gradient(175deg, #050810 0%, var(--ψ-ground) 35%, #0d1220 100%);
+    }
+
+    #particle-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: calc(var(--z-field) + 1);
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    /* SPLASH */
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: var(--z-transcendent);
+      display: grid;
+      place-items: center;
+      background: rgba(10, 14, 26, 0.97);
+      backdrop-filter: blur(20px);
+      opacity: 1;
+      transition: opacity 0.8s ease;
+    }
+    #splash.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .splash-card {
+      width: min(700px, 90vw);
+      padding: var(--space-6);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      box-shadow: 0 40px 100px -20px rgba(0,0,0,0.6);
+    }
+
+    .splash-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: rgba(139, 92, 246, 0.12);
+      border: 1px dashed rgba(139, 92, 246, 0.35);
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: var(--type-xs);
+      color: var(--λ-violet);
+    }
+
+    .splash-pulse {
+      width: 8px;
+      height: 8px;
+      background: var(--λ-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(34,211,238,0.15), 0 0 20px rgba(34,211,238,0.5);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.6; }
+    }
+
+    .splash-title {
+      font-family: var(--font-display);
+      font-size: var(--type-lg);
+      margin: var(--space-4) 0;
+      background: linear-gradient(135deg, var(--field-strong), var(--λ-cyan), var(--λ-violet));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .splash-desc {
+      color: var(--field-medium);
+      line-height: 1.9;
+      margin-bottom: var(--space-5);
+    }
+
+    .splash-progress {
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: var(--space-4);
+    }
+    .splash-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--λ-violet), var(--λ-cyan), var(--λ-green));
+      border-radius: 999px;
+      animation: loadbar 1.5s ease forwards;
+    }
+    @keyframes loadbar { to { width: 100%; } }
+
+    .splash-foot {
+      font-size: var(--type-xs);
+      color: var(--field-weak);
+    }
+
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: var(--z-interface);
+      background: rgba(10, 14, 26, 0.72);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: var(--space-3) var(--space-5);
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--λ-violet), var(--λ-cyan), var(--λ-green));
+      box-shadow: 0 8px 24px -4px rgba(139,92,246,0.4);
+    }
+
+    .brand h1 { font-size: var(--type-base); font-weight: 500; }
+    .brand small { font-size: var(--type-xs); color: var(--field-weak); display: block; }
+
+    .nav-tools {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+    }
+    .pill input, .pill select {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--field-strong);
+      font-family: inherit;
+      font-size: var(--type-sm);
+    }
+    .pill input { width: 160px; }
+    .pill input::placeholder { color: var(--field-weak); }
+    .pill select option { background: var(--ψ-ground); }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+      color: var(--field-medium);
+      font-size: var(--type-sm);
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform var(--t-atomic) ease, background var(--t-atomic) ease;
+    }
+    .nav-btn:hover {
+      transform: translateY(-2px);
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* MAIN */
+    main {
+      position: relative;
+      z-index: var(--z-particle);
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: var(--space-5);
+    }
+
+    .section {
+      margin: var(--space-5) 0;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      box-shadow: 0 40px 80px -20px rgba(0,0,0,0.4);
+      overflow: hidden;
+    }
+
+    .section-inner {
+      padding: var(--space-6);
+    }
+
+    .hero-bg {
+      background: 
+        radial-gradient(ellipse 120% 80% at 30% 20%, var(--ψ-excited-1), transparent 60%),
+        radial-gradient(ellipse 100% 70% at 80% 60%, var(--ψ-excited-2), transparent 55%);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: var(--space-5);
+      align-items: start;
+    }
+    @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: var(--type-lg);
+      margin-bottom: var(--space-4);
+      background: linear-gradient(135deg, var(--field-strong) 40%, var(--λ-cyan), var(--λ-violet));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-sub {
+      color: var(--field-medium);
+      line-height: 1.9;
+      margin-bottom: var(--space-4);
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: var(--space-2) var(--space-3);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      font-size: var(--type-xs);
+      color: var(--field-medium);
+    }
+    .tag::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--λ-cyan);
+      box-shadow: 0 0 8px var(--λ-cyan);
+    }
+
+    .card {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: var(--space-5);
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: var(--type-lg);
+      margin-bottom: var(--space-3);
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+    @media (max-width: 600px) { .input-grid { grid-template-columns: 1fr; } }
+
+    .field-group { display: flex; flex-direction: column; gap: var(--space-2); }
+    .field-label {
+      font-size: var(--type-xs);
+      color: var(--field-medium);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .input {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      color: var(--field-strong);
+      font-family: inherit;
+      font-size: var(--type-base);
+      outline: none;
+      transition: border-color var(--t-atomic) ease, box-shadow var(--t-atomic) ease;
+    }
+    .input::placeholder { color: var(--field-weak); }
+    .input:focus {
+      border-color: rgba(34,211,238,0.5);
+      box-shadow: 0 0 0 4px rgba(34,211,238,0.1);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-5);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+      color: var(--field-strong);
+      font-family: inherit;
+      font-size: var(--type-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform var(--t-atomic) ease, background var(--t-atomic) ease;
+    }
+    .btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.08); }
+    .btn:active { transform: translateY(0); }
+
+    .btn.primary {
+      background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(34,211,238,0.15));
+      border-color: rgba(139,92,246,0.4);
+      box-shadow: 0 8px 24px -4px rgba(139,92,246,0.3);
+    }
+    .btn.success {
+      background: linear-gradient(135deg, rgba(16,185,129,0.20), rgba(34,211,238,0.10));
+      border-color: rgba(16,185,129,0.4);
+    }
+    .btn.danger {
+      background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(249,115,22,0.08));
+      border-color: rgba(239,68,68,0.35);
+    }
+
+    .output {
+      padding: var(--space-5);
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      min-height: 180px;
+      line-height: 2.1;
+      white-space: pre-wrap;
+    }
+    .output:empty::after {
+      content: attr(data-placeholder);
+      color: var(--field-weak);
+      font-style: italic;
+    }
+
+    .hint {
+      margin-top: var(--space-3);
+      font-size: var(--type-xs);
+      color: var(--field-weak);
+      line-height: 1.8;
+    }
+
+    /* ACCORDION */
+    .accordion { border-top: 1px solid rgba(255,255,255,0.06); }
+    .accordion-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: var(--space-4) var(--space-5);
+      background: transparent;
+      border: none;
+      color: var(--field-medium);
+      font-family: inherit;
+      font-size: var(--type-base);
+      font-weight: 600;
+      text-align: inherit;
+      cursor: pointer;
+    }
+    .accordion-trigger:hover { background: rgba(255,255,255,0.02); color: var(--field-strong); }
+    .accordion-icon { transition: transform var(--t-molecular) ease; }
+    .accordion.open .accordion-icon { transform: rotate(180deg); }
+    .accordion-content {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows var(--t-molecular) ease;
+    }
+    .accordion.open .accordion-content { grid-template-rows: 1fr; }
+    .accordion-inner { overflow: hidden; }
+    .accordion-body {
+      padding: 0 var(--space-5) var(--space-5);
+      color: var(--field-medium);
+      line-height: 1.9;
+      font-size: var(--type-sm);
+    }
+
+    /* HUD */
+    #hud {
+      position: fixed;
+      bottom: var(--space-5);
+      inset-inline-end: var(--space-5);
+      z-index: var(--z-interface);
+      width: min(380px, calc(100vw - 40px));
+      background: rgba(10,14,26,0.85);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      box-shadow: 0 40px 80px -20px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+    #hud.min { width: 180px; }
+    #hud.min .hud-body { display: none; }
+
+    .hud-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .hud-title { font-size: var(--type-sm); color: var(--field-medium); }
+    .hud-mini { font-family: var(--font-mono); font-size: var(--type-xs); color: var(--field-weak); }
+    .hud-toggle {
+      padding: var(--space-2) var(--space-3);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      color: var(--field-medium);
+      font-size: var(--type-xs);
+      cursor: pointer;
+    }
+
+    .hud-body {
+      display: grid;
+      grid-template-columns: 1fr 140px;
+      gap: var(--space-3);
+      padding: var(--space-4);
+    }
+
+    .stat-card {
+      padding: var(--space-3);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+    }
+    .stat-label { font-size: var(--type-xs); color: var(--field-weak); margin-bottom: 4px; }
+    .stat-value { font-family: var(--font-mono); font-size: var(--type-base); font-weight: 600; }
+
+    .xp-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .xp-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--λ-violet), var(--λ-cyan), var(--λ-green));
+      border-radius: 999px;
+      width: 0%;
+      transition: width var(--t-molecular) ease;
+    }
+
+    #constellation {
+      width: 140px;
+      height: 100px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(0,0,0,0.3);
+    }
+
+    .hud-actions { display: flex; gap: var(--space-2); margin-top: var(--space-3); flex-wrap: wrap; }
+    .hud-btn {
+      padding: var(--space-2) var(--space-3);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      color: var(--field-medium);
+      font-size: var(--type-xs);
+      cursor: pointer;
+    }
+    .hud-note {
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      font-size: var(--type-xs);
+      color: var(--field-weak);
+      line-height: 1.7;
+    }
+
+    /* FOOTER */
+    footer { margin-top: var(--space-6); padding: var(--space-5) 0; }
+    .footer-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: var(--space-5);
+    }
+    .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+    @media (max-width: 760px) { .footer-grid { grid-template-columns: 1fr; } }
+    .footer-section h3 { font-size: var(--type-base); margin-bottom: var(--space-3); }
+    .footer-section p { font-size: var(--type-sm); color: var(--field-medium); line-height: 1.9; }
+    .footer-note {
+      margin-top: var(--space-4);
+      padding-top: var(--space-4);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: var(--type-xs);
+      color: var(--field-weak);
+    }
+
+    @media print {
+      #quantum-field, #particle-canvas, #splash, #hud, header { display: none !important; }
+      body { background: white; color: black; }
+      .section, .card, .output, .footer-card {
+        background: white !important;
+        border-color: #ccc !important;
+        box-shadow: none !important;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="quantum-field"></div>
+  <canvas id="particle-canvas"></canvas>
+
+  <div id="splash">
+    <div class="splash-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4)">
+        <div class="splash-badge">
+          QUANTUM MODE <span class="splash-pulse"></span>
+        </div>
+        <div class="splash-badge">IndexedDB ✓</div>
+      </div>
+      <h2 class="splash-title" data-i18n="splash.title">تهيئة المحرك الكمومي للحكاية…</h2>
+      <p class="splash-desc" data-i18n="splash.desc">
+        هنا تتحوّل أسماء الشخصيات إلى أسمائك—عبر حقول سردية تتكيّف مع سياق الماضي والمستقبل.
+      </p>
+      <div class="splash-progress"><div class="splash-bar"></div></div>
+      <p class="splash-foot">🔒 لا اتصالات خارجية. كل شيء يبقى على جهازك.</p>
+    </div>
+  </div>
+
+  <header>
+    <div class="header-inner">
+      <a href="#top" class="brand">
+        <div class="brand-icon"></div>
+        <div>
+          <h1 data-i18n="brand.title">المحرك الكمومي للحكاية</h1>
+          <small data-i18n="brand.sub">علاء الدين وياسمين — بأسمائك أنت ✨</small>
+        </div>
+      </a>
+      <nav class="nav-tools">
+        <div class="pill">
+          🔎 <input type="search" id="search" placeholder="ابحث…">
+        </div>
+        <div class="pill">
+          🌐
+          <select id="lang">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <a href="#engine" class="nav-btn">🧞 المحرك</a>
+        <a href="#guide" class="nav-btn">🗺️ دليل</a>
+        <a href="#library" class="nav-btn">📚 المكتبة</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section id="engine" class="section">
+      <div class="section-inner hero-bg">
+        <div class="hero-grid">
+          <div>
+            <h2 class="section-title" data-i18n="hero.title">حوِّل علاء الدين وياسمين إلى "أنت" 🪄</h2>
+            <p class="section-sub" data-i18n="hero.sub">
+              اكتب أسماءك، ثم شاهد الانتقالات المورفولوجية تتكيّف مع سياق الحكاية—ماضيها ومستقبلها.
+            </p>
+            <div class="tags">
+              <span class="tag">Offline-First</span>
+              <span class="tag">حفظ محلي</span>
+              <span class="tag">انتقالات مورفولوجية</span>
+              <span class="tag">فيزياء كمومية</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title" data-i18n="form.title">أدخل الأسماء</h3>
+            <div class="input-grid">
+              <div class="field-group">
+                <label class="field-label">البطل</label>
+                <input type="text" id="heroName" class="input" maxlength="40" placeholder="بديل علاء الدين…">
+              </div>
+              <div class="field-group">
+                <label class="field-label">البطلة</label>
+                <input type="text" id="heroineName" class="input" maxlength="40" placeholder="بديل ياسمين…">
+              </div>
+              <div class="field-group">
+                <label class="field-label">الجني (اختياري)</label>
+                <input type="text" id="genieName" class="input" maxlength="40" placeholder="اسم الجني…">
+              </div>
+              <div class="field-group">
+                <label class="field-label">السلطان (اختياري)</label>
+                <input type="text" id="sultanName" class="input" maxlength="40" placeholder="اسم السلطان…">
+              </div>
+            </div>
+            <div class="btn-row">
+              <button type="button" id="generate" class="btn primary">✨ ولِّد الحكاية</button>
+              <button type="button" id="saveClip" class="btn success">💾 احفظ</button>
+              <button type="button" id="copyText" class="btn">📋 نسخ</button>
+              <button type="button" id="resetAll" class="btn danger">🧹 مسح</button>
+            </div>
+            <p class="hint">يتم تنقية المدخلات. كل شيء يبقى على جهازك.</p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:var(--space-5)">
+          <h3 class="card-title">الناتج</h3>
+          <div id="output" class="output" data-placeholder="ستظهر الحكاية هنا…"></div>
+          <div class="btn-row">
+            <button type="button" id="changeStyle" class="btn">🎲 بدّل الأسلوب</button>
+            <button type="button" id="download" class="btn">⬇️ تنزيل</button>
+            <button type="button" id="replaySplash" class="btn">🔄 شاشة البداية</button>
+          </div>
+        </div>
+
+        <div id="guide" class="accordion">
+          <button type="button" class="accordion-trigger">
+            <span>🗺️ دليل سريع</span>
+            <span class="accordion-icon">▾</span>
+          </button>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+              <div class="accordion-body">
+                1) اكتب أسماءك. 2) اضغط "ولِّد". 3) جرّب "بدّل الأسلوب" لتغيير النبرة.
+                4) احفظ المقاطع المفضلة. 5) اطبع أو صدّر JSON.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="library" class="accordion">
+          <button type="button" class="accordion-trigger">
+            <span>📚 مكتبة المحفوظات</span>
+            <span class="accordion-icon">▾</span>
+          </button>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+              <div class="accordion-body">
+                <div class="btn-row" style="margin-bottom:var(--space-4)">
+                  <button type="button" id="exportJSON" class="btn">⬇️ تصدير JSON</button>
+                  <button type="button" id="clearSaves" class="btn danger">🧨 مسح الكل</button>
+                  <span id="saveCount" style="font-size:var(--type-xs);color:var(--field-weak)">—</span>
+                </div>
+                <div id="savesContainer"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion">
+          <button type="button" class="accordion-trigger">
+            <span>🛡️ الأمان والنية</span>
+            <span class="accordion-icon">▾</span>
+          </button>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+              <div class="accordion-body">
+                هذا المحرّك للتمكين الإبداعي. لا تستخدمه للإكراه أو التضليل.
+                الحكاية لعبة خيال—وليست أداة سيطرة.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="footer-card">
+        <div class="footer-grid">
+          <div class="footer-section">
+            <h3>ملاحظة "عدم الإيذاء"</h3>
+            <p>هذا العمل محلي-فقط. لا تتبّع، لا إرسال. استخدمه للسرد والإلهام فقط.</p>
+          </div>
+          <div class="footer-section">
+            <h3>الإسنادات</h3>
+            <p>مستوحى من أنماط الويب المفتوحة. التصميم يتبع مبادئ الفيزياء الكمومية كاستعارات بصرية.</p>
+          </div>
+        </div>
+        <p class="footer-note">✨ اطبع الصفحة أو صدّر JSON للاحتفاظ بقصصك.</p>
+      </div>
+    </footer>
+  </main>
+
+  <aside id="hud">
+    <div class="hud-header">
+      <div class="hud-title">🧭 HUD</div>
+      <div class="hud-mini" id="hudMini">—</div>
+      <button type="button" class="hud-toggle" id="hudToggle">تصغير</button>
+    </div>
+    <div class="hud-body">
+      <div>
+        <div class="stat-card">
+          <div class="stat-label">المستوى</div>
+          <div class="stat-value" id="levelDisplay">1</div>
+          <div class="xp-bar"><div class="xp-fill" id="xpBar"></div></div>
+        </div>
+        <div class="hud-actions">
+          <button type="button" class="hud-btn" id="gainXP">+XP</button>
+          <button type="button" class="hud-btn" id="resetHUD">تصفير</button>
+        </div>
+        <p class="hud-note">تحفيز لطيف—لا سلاسل قهرية.</p>
+      </div>
+      <canvas id="constellation" width="140" height="100"></canvas>
+    </div>
+  </aside>
+
+  <script>
+    (function() {
+      'use strict';
+
+      /* ═══════════════════════════════════════════════════════════════════════
+         RATE LIMITER
+      ═══════════════════════════════════════════════════════════════════════ */
+      const Rate = { last: 0, ok(ms=600) { const n=Date.now(); if(n-this.last<ms)return false; this.last=n; return true; } };
+
+      /* ═══════════════════════════════════════════════════════════════════════
+         SANITIZER
+      ═══════════════════════════════════════════════════════════════════════ */
+      function sanitize(s) {
+        if (typeof s !== 'string') return '';
+        return s.trim().replace(/[<>]/g,'').replace(/[\u0000-\u001F\u007F]/g,'').slice(0,40);
+      }
+      function fallback(v, d) { return v && v.length ? v : d; }
+
+      /* ═══════════════════════════════════════════════════════════════════════
+         INDEXEDDB
+      ═══════════════════════════════════════════════════════════════════════ */
+      const DB = {
+        name: 'quantum_story_v3',
+        version: 1,
+        db: null,
+        async open() {
+          if (this.db) return this.db;
+          return new Promise((res, rej) => {
+            const r = indexedDB.open(this.name, this.version);
+            r.onupgradeneeded = () => {
+              const db = r.result;
+              if (!db.objectStoreNames.contains('kv')) db.createObjectStore('kv', {keyPath:'k'});
+              if (!db.objectStoreNames.contains('clips')) db.createObjectStore('clips', {keyPath:'id'});
+            };
+            r.onsuccess = () => { this.db = r.result; res(this.db); };
+            r.onerror = () => rej(r.error);
+          });
+        },
+        async get(k) {
+          const db = await this.open();
+          return new Promise((res,rej) => {
+            const tx = db.transaction('kv','readonly');
+            const req = tx.objectStore('kv').get(k);
+            req.onsuccess = () => res(req.result?.v ?? null);
+            req.onerror = () => rej(req.error);
+          });
+        },
+        async set(k,v) {
+          const db = await this.open();
+          return new Promise((res,rej) => {
+            const tx = db.transaction('kv','readwrite');
+            tx.objectStore('kv').put({k,v});
+            tx.oncomplete = () => res(true);
+            tx.onerror = () => rej(tx.error);
+          });
+        },
+        async saveClip(c) {
+          const db = await this.open();
+          return new Promise((res,rej) => {
+            const tx = db.transaction('clips','readwrite');
+            tx.objectStore('clips').put(c);
+            tx.oncomplete = () => res(true);
+            tx.onerror = () => rej(tx.error);
+          });
+        },
+        async listClips() {
+          const db = await this.open();
+          return new Promise((res,rej) => {
+            const tx = db.transaction('clips','readonly');
+            const req = tx.objectStore('clips').getAll();
+            req.onsuccess = () => res(req.result || []);
+            req.onerror = () => rej(req.error);
+          });
+        },
+        async clearClips() {
+          const db = await this.open();
+          return new Promise((res,rej) => {
+            const tx = db.transaction('clips','readwrite');
+            tx.objectStore('clips').clear();
+            tx.oncomplete = () => res(true);
+            tx.onerror = () => rej(tx.error);
+          });
+        }
+      };
+
+      /* ═══════════════════════════════════════════════════════════════════════
+         PERLIN NOISE (simplified)
+      ═══════════════════════════════════════════════════════════════════════ */
+      class Perlin {
+        constructor(seed=0) {
+          this.p = new Uint8Array(512);
+          const b = new Uint8Array(256);
+          for(let i=0;i<256;i++) b[i]=i;
+          let s = seed>>>0;
+          for(let i=255;i>0;i--) { s=(s*1103515245+12345)>>>0; const j=s%(i+1); [b[i],b[j]]=[b[j],b[i]]; }
+          for(let i=0;i<512;i++) this.p[i]=b[i&255];
+        }
+        fade(t) { return t*t*t*(t*(t*6-15)+10); }
+        lerp(a,b,t) { return a+t*(b-a); }
+        grad(h,x,y) { const v=((h&1)?-x:x)+((h&2)?-y:y); return v; }
+        noise(x,y) {
+          const X=Math.floor(x)&255, Y=Math.floor(y)&255;
+          const xf=x-Math.floor(x), yf=y-Math.floor(y);
+          const u=this.fade(xf), v=this.fade(yf);
+          const p=this.p;
+          const aa=p[p[X]+Y], ab=p[p[X]+Y+1], ba=p[p[X+1]+Y], bb=p[p[X+1]+Y+1];
+          return this.lerp(
+            this.lerp(this.grad(aa,xf,yf), this.grad(ba,xf-1,yf), u),
+            this.lerp(this.grad(ab,xf,yf-1), this.grad(bb,xf-1,yf-1), u),
+            v
+          );
+        }
+      }
+
+      /* ═══════════════════════════════════════════════════════════════════════
+         PARTICLE SYSTEM
+      ═══════════════════════════════════════════════════════════════════════ */
+      class ParticleSystem {
+        constructor(canvas) {
+          this.canvas = canvas;
+          this.ctx = canvas.getContext('2d');
+          this.particles = [];
+          this.perlin = new Perlin(Date.now());
+          this.time = 0;
+          this.state = { energy: 0.5, wonder: 0.7 };
+          this.resize();
+          window.addEventListener('resize', () => this.resize());
+          this.running = true;
+        }
+        resize() {
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          this.canvas.width = window.innerWidth * dpr;
+          this.canvas.height = window.innerHeight * dpr;
+          this.ctx.scale(dpr, dpr);
+          this.initParticles();
+        }
+        initParticles() {
+          const count = Math.min(120, Math.floor((window.innerWidth * window.innerHeight) / 12000));
+          this.particles = [];
+          for (let i = 0; i < count; i++) {
+            this.particles.push({
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+              vx: 0, vy: 0,
+              size: 1 + Math.random() * 1.5,
+              phase: Math.random() * Math.PI * 2,
+              hue: 200 + Math.random() * 60
+            });
+          }
+        }
+        update(dt) {
+          this.time += dt * 0.0008;
+          for (const p of this.particles) {
+            const angle = this.perlin.noise(p.x * 0.003, p.y * 0.003 + this.time) * Math.PI * 3;
+            const force = 0.2 + this.state.energy * 0.3;
+            p.vx = p.vx * 0.96 + Math.cos(angle) * force * dt * 0.008;
+            p.vy = p.vy * 0.96 + Math.sin(angle) * force * dt * 0.008;
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0) p.x = window.innerWidth;
+            if (p.x > window.innerWidth) p.x = 0;
+            if (p.y < 0) p.y = window.innerHeight;
+            if (p.y > window.innerHeight) p.y = 0;
+            p.phase += dt * 0.002;
+          }
+        }
+        draw() {
+          this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+          for (const p of this.particles) {
+            const alpha = 0.4 + Math.sin(p.phase) * 0.2;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size * (1 + this.state.wonder * 0.3), 0, Math.PI * 2);
+            this.ctx.fillStyle = `hsla(${p.hue}, 70%, 70%, ${alpha})`;
+            this.ctx.fill();
+          }
+        }
+        animate() {
+          let last = performance.now();
+          const loop = (now) => {
+            if (!this.running) return;
+            const dt = Math.min(now - last, 50);
+            last = now;
+            this.update(dt);
+            this.draw();
+            requestAnimationFrame(loop);
+          };
+          requestAnimationFrame(loop);
+        }
+        updateState(s) { Object.assign(this.state, s); }
+      }
+
+      /* ═══════════════════════════════════════════════════════════════════════
+         MORPHOLOGICAL TRANSITION ENGINE
+      ═══════════════════════════════════════════════════════════════════════ */
+      class TransitionEngine {
+        constructor() {
+          this.state = { emotion: 0.5, wonder: 0.6, tension: 0.3 };
+        }
+        analyze(text) {
+          const s = { ...this.state };
+          const t = (text || '').toLowerCase();
+          if (t.includes('سحر') || t.includes('مصباح') || t.includes('magic')) s.wonder += 0.1;
+          if (t.includes('خطر') || t.includes('danger')) s.tension += 0.1;
+          if (t.includes('حب') || t.includes('love')) s.emotion += 0.1;
+          Object.keys(s).forEach(k => { s[k] = Math.max(0, Math.min(1, s[k])); });
+          this.state = s;
+          return s;
+        }
+      }
+
+      /* ═══════════════════════════════════════════════════════════════════════
+         STORY TEMPLATES
+      ═══════════════════════════════════════════════════════════════════════ */
+      const STYLES = ['epic', 'soft', 'playful'];
+      const TEMPLATES = {
+        epic: [
+          ({hero,heroine,genie,sultan}) => `في مدينةٍ تتنفسُ الأسواقُ فيها ذهبًا وغبارًا، كان ${hero} ينسجُ يومه بخفةٍ وشجاعة.
+وفي قصرٍ بعيد، كانت ${heroine} تُحدِّق في الأفق كمن يبحث عن معنى.
+
+عندما لامستْ يدُ ${hero} مصباحًا قديمًا، خرج ${genie} كبرقٍ أزرق—قوةٌ تكرهُ العبث وتحبُّ الحكمة.
+قال: "أمنيةٌ تُبنى على الرحمة تُصبح طريقًا."
+
+في الليلة التي واجه فيها ${hero} بوابة القصر، كان ${sultan} يختبر الصدق قبل الأنساب.
+فلم يأتِ ${hero} لينتزع قلب ${heroine}، بل ليضعه بجوار قلبه.`
+        ],
+        soft: [
+          ({hero,heroine,genie,sultan}) => `في صباحٍ خفيف، كان ${hero} يمشي بابتسامةٍ صغيرة.
+وفي مكانٍ أعلى، كانت ${heroine} تتساءل: "هل يمكن أن أكون نفسي؟"
+
+ظهر ${genie} كصديقٍ قديم: "سأمنحك ضوءًا صغيرًا لترى طريقك."
+
+حتى ${sultan} ابتسم: "من يحترم قلبه يحترم قصره."`
+        ],
+        playful: [
+          ({hero,heroine,genie,sultan}) => `كان ${hero} يعرف أن بعض الأبواب تُفتح بالمزاح 😄
+ردّت ${heroine}: "جرّب حظك—لكن لا تبالغ!"
+
+ظهر ${genie}: "أنا جني محترم. لا أعمل في قسم الأمنيات المريبة!"
+
+قال ${sultan}: "إذا كان هذا سحرًا، فليكن—بشرط: لا أحد يُجرّ خارج الحقيقة."`
+        ]
+      };
+
+      /* ═══════════════════════════════════════════════════════════════════════
+         STATE
+      ═══════════════════════════════════════════════════════════════════════ */
+      const State = {
+        lang: 'ar',
+        style: 'epic',
+        styleIdx: 0,
+        xp: 0,
+        level: 1,
+        streak: 0,
+        lastDay: null
+      };
+
+      let particles = null;
+      let transitions = null;
+
+      /* ═══════════════════════════════════════════════════════════════════════
+         HELPERS
+      ═══════════════════════════════════════════════════════════════════════ */
+      const $ = s => document.querySelector(s);
+      const $$ = s => document.querySelectorAll(s);
+
+      function calcLevel(xp) {
+        let lv=1, need=60, rem=xp;
+        while (rem >= need && lv < 99) { rem -= need; lv++; need = Math.floor(need*1.2+15); }
+        return { lv, need, rem };
+      }
+
+      function addXP(n) {
+        State.xp = Math.max(0, State.xp + n);
+        const {lv} = calcLevel(State.xp);
+        State.level = lv;
+        const today = new Date().toISOString().slice(0,10);
+        if (State.lastDay !== today) { State.streak++; State.lastDay = today; }
+        updateHUD();
+        DB.set('state', State).catch(()=>{});
+      }
+
+      function updateHUD() {
+        const {lv, need, rem} = calcLevel(State.xp);
+        const pct = Math.round((rem / need) * 100);
+        const levelEl = $('#levelDisplay');
+        const xpEl = $('#xpBar');
+        const miniEl = $('#hudMini');
+        if (levelEl) levelEl.textContent = lv;
+        if (xpEl) xpEl.style.width = pct + '%';
+        if (miniEl) miniEl.textContent = `Lv${lv} • XP${State.xp} • 🔥${State.streak}`;
+        drawConstellation();
+      }
+
+      function drawConstellation() {
+        const c = $('#constellation');
+        if (!c) return;
+        const ctx = c.getContext('2d');
+        ctx.clearRect(0, 0, c.width, c.height);
+        const n = Math.min(18, 5 + Math.floor(State.level / 2));
+        const seed = State.xp * 2654435761 >>> 0;
+        const rnd = i => { let x=(seed+i*1013904223)>>>0; x^=x<<13;x>>>=0;x^=x>>17;x>>>=0;x^=x<<5;x>>>=0; return(x%1000)/1000; };
+        const nodes = [];
+        for (let i=0;i<n;i++) nodes.push({ x: 8+rnd(i)*(c.width-16), y: 8+rnd(i+77)*(c.height-16) });
+        ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+        ctx.lineWidth = 1;
+        for (let i=0;i<nodes.length;i++) {
+          for (let j=i+1;j<nodes.length;j++) {
+            if (Math.hypot(nodes[i].x-nodes[j].x, nodes[i].y-nodes[j].y) < 45) {
+              ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+            }
+          }
+        }
+        for (const nd of nodes) {
+          ctx.beginPath(); ctx.arc(nd.x, nd.y, 1.5+rnd(nodes.indexOf(nd)+99)*1.5, 0, Math.PI*2);
+          ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fill();
+        }
+      }
+
+      function generate() {
+        const hero = fallback(sanitize($('#heroName')?.value), State.lang==='ar'?'علاء':'Aladdin');
+        const heroine = fallback(sanitize($('#heroineName')?.value), State.lang==='ar'?'ياسمين':'Jasmine');
+        const genie = fallback(sanitize($('#genieName')?.value), State.lang==='ar'?'الجني':'Genie');
+        const sultan = fallback(sanitize($('#sultanName')?.value), State.lang==='ar'?'السلطان':'Sultan');
+        const pool = TEMPLATES[State.style] || TEMPLATES.epic;
+        const tpl = pool[Math.floor(Math.random()*pool.length)];
+        return { text: tpl({hero,heroine,genie,sultan}), hero, heroine, genie, sultan };
+      }
+
+      function setOutput(text) {
+        const el = $('#output');
+        if (el) el.textContent = text;
+        if (transitions && particles) {
+          const s = transitions.analyze(text);
+          particles.updateState({ energy: s.emotion, wonder: s.wonder });
+        }
+        DB.set('lastOutput', text).catch(()=>{});
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      }
+
+      async function renderSaves() {
+        const container = $('#savesContainer');
+        const countEl = $('#saveCount');
+        if (!container) return;
+        const clips = await DB.listClips();
+        clips.sort((a,b) => (b.ts||0)-(a.ts||0));
+        if (countEl) countEl.textContent = clips.length + ' محفوظ';
+        if (!clips.length) {
+          container.innerHTML = '<p style="color:var(--field-weak);font-size:var(--type-sm)">لا توجد محفوظات.</p>';
+          return;
+        }
+        container.innerHTML = clips.map(c => `
+          <div class="card" style="margin-bottom:var(--space-3);padding:var(--space-4)">
+            <div style="font-size:var(--type-xs);color:var(--field-weak);margin-bottom:8px">${new Date(c.ts).toLocaleString()}</div>
+            <div style="white-space:pre-wrap;line-height:1.8;font-size:var(--type-sm)">${escapeHtml((c.text||'').slice(0,200))}${(c.text||'').length>200?'…':''}</div>
+          </div>
+        `).join('');
+      }
+
+      /* ═══════════════════════════════════════════════════════════════════════
+         INIT
+      ═══════════════════════════════════════════════════════════════════════ */
+      async function init() {
+        // Load state
+        const saved = await DB.get('state');
+        if (saved) Object.assign(State, saved);
+
+        const savedNames = await DB.get('names');
+        if (savedNames) {
+          if ($('#heroName')) $('#heroName').value = savedNames.hero || '';
+          if ($('#heroineName')) $('#heroineName').value = savedNames.heroine || '';
+          if ($('#genieName')) $('#genieName').value = savedNames.genie || '';
+          if ($('#sultanName')) $('#sultanName').value = savedNames.sultan || '';
+        }
+
+        const lastOut = await DB.get('lastOutput');
+        if (lastOut) setOutput(lastOut);
+
+        if ($('#lang')) $('#lang').value = State.lang;
+        updateHUD();
+        await renderSaves();
+
+        // Init particles
+        const pCanvas = $('#particle-canvas');
+        if (pCanvas) {
+          particles = new ParticleSystem(pCanvas);
+          particles.animate();
+        }
+
+        // Init transitions
+        transitions = new TransitionEngine();
+
+        // Hide splash
+        setTimeout(() => {
+          const splash = $('#splash');
+          if (splash) splash.classList.add('hidden');
+        }, 2000);
+      }
+
+      /* ═══════════════════════════════════════════════════════════════════════
+         EVENT LISTENERS
+      ═══════════════════════════════════════════════════════════════════════ */
+      document.addEventListener('DOMContentLoaded', () => {
+        init();
+
+        // Accordions
+        $$('.accordion-trigger').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const acc = btn.closest('.accordion');
+            acc.classList.toggle('open');
+            btn.setAttribute('aria-expanded', acc.classList.contains('open'));
+          });
+        });
+
+        // Generate
+        $('#generate')?.addEventListener('click', () => {
+          if (!Rate.ok()) return;
+          const r = generate();
+          setOutput(r.text);
+          addXP(20);
+          DB.set('names', { hero: sanitize($('#heroName')?.value), heroine: sanitize($('#heroineName')?.value), genie: sanitize($('#genieName')?.value), sultan: sanitize($('#sultanName')?.value) }).catch(()=>{});
+        });
+
+        // Change style
+        $('#changeStyle')?.addEventListener('click', () => {
+          if (!Rate.ok()) return;
+          State.styleIdx = (State.styleIdx + 1) % STYLES.length;
+          State.style = STYLES[State.styleIdx];
+          const r = generate();
+          setOutput(r.text);
+          addXP(10);
+          DB.set('state', State).catch(()=>{});
+        });
+
+        // Save clip
+        $('#saveClip')?.addEventListener('click', async () => {
+          if (!Rate.ok()) return;
+          const text = $('#output')?.textContent?.trim();
+          if (!text) return;
+          await DB.saveClip({ id: 'clip_'+Date.now()+'_'+Math.random().toString(16).slice(2), text, ts: Date.now() });
+          addXP(25);
+          await renderSaves();
+        });
+
+        // Copy
+        $('#copyText')?.addEventListener('click', async () => {
+          if (!Rate.ok(300)) return;
+          const text = $('#output')?.textContent?.trim();
+          if (!text) return;
+          try { await navigator.clipboard.writeText(text); addXP(5); } catch(e) {}
+        });
+
+        // Reset
+        $('#resetAll')?.addEventListener('click', async () => {
+          if (!Rate.ok()) return;
+          ['#heroName','#heroineName','#genieName','#sultanName'].forEach(s => { const el=$(s); if(el) el.value=''; });
+          setOutput('');
+          await DB.set('names', {});
+          await DB.set('lastOutput', '');
+        });
+
+        // Download
+        $('#download')?.addEventListener('click', () => {
+          const text = $('#output')?.textContent?.trim();
+          if (!text) return;
+          const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'story.txt';
+          a.click();
+          URL.revokeObjectURL(a.href);
+          addXP(8);
+        });
+
+        // Replay splash
+        $('#replaySplash')?.addEventListener('click', () => {
+          const splash = $('#splash');
+          if (splash) {
+            splash.classList.remove('hidden');
+            setTimeout(() => splash.classList.add('hidden'), 2000);
+          }
+        });
+
+        // Language
+        $('#lang')?.addEventListener('change', e => {
+          State.lang = e.target.value;
+          document.documentElement.dir = State.lang === 'ar' ? 'rtl' : 'ltr';
+          document.documentElement.lang = State.lang;
+          DB.set('state', State).catch(()=>{});
+        });
+
+        // HUD toggle
+        $('#hudToggle')?.addEventListener('click', () => {
+          const hud = $('#hud');
+          const btn = $('#hudToggle');
+          if (hud) {
+            const isMin = hud.classList.toggle('min');
+            if (btn) btn.textContent = isMin ? 'تكبير' : 'تصغير';
+          }
+        });
+
+        // HUD buttons
+        $('#gainXP')?.addEventListener('click', () => addXP(5));
+        $('#resetHUD')?.addEventListener('click', () => {
+          State.xp = 0; State.level = 1; State.streak = 0; State.lastDay = null;
+          DB.set('state', State).catch(()=>{});
+          updateHUD();
+        });
+
+        // Export JSON
+        $('#exportJSON')?.addEventListener('click', async () => {
+          const clips = await DB.listClips();
+          const blob = new Blob([JSON.stringify({clips, exported: new Date().toISOString()}, null, 2)], {type:'application/json'});
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'clips.json';
+          a.click();
+          URL.revokeObjectURL(a.href);
+          addXP(10);
+        });
+
+        // Clear saves
+        $('#clearSaves')?.addEventListener('click', async () => {
+          if (!Rate.ok()) return;
+          await DB.clearClips();
+          await renderSaves();
+        });
+
+        // Search filter
+        $('#search')?.addEventListener('input', e => {
+          const q = (e.target.value || '').toLowerCase().trim();
+          $$('.section, .accordion').forEach(el => {
+            if (!q) { el.style.display = ''; return; }
+            el.style.display = (el.textContent||'').toLowerCase().includes(q) ? '' : 'none';
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
